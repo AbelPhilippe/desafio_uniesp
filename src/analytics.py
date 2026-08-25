@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def create_ranking(df):
 
     return (
@@ -126,6 +127,7 @@ def create_country_yearly(
         .sort_values("year")
         .fillna(0)
     )
+
 
 def calculate_country_metrics(
     country_exports,

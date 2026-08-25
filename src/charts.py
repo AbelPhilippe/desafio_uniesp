@@ -8,13 +8,14 @@ from src.config import (
     MAP_IMPORT_SCALE,
 )
 
+
 def create_world_map(
     map_df,
     map_type,
     start_year,
     end_year,
 ):
-    
+
     color_scale = (
         MAP_EXPORT_SCALE
         if map_type == "Exportações"
@@ -64,6 +65,9 @@ def create_world_map(
             t=60,
             b=0,
         ),
+        title=dict(
+            font=dict(size=24),
+        ),
     )
 
     return fig
@@ -101,7 +105,18 @@ def create_world_yearly_chart(
             r=20,
             t=50,
             b=20,
-        )
+        ),
+        title=dict(
+            font=dict(size=22),
+        ),
+        xaxis=dict(
+            title_font=dict(size=17),
+            tickfont=dict(size=15),
+        ),
+        yaxis=dict(
+            title_font=dict(size=17),
+            tickfont=dict(size=15),
+        ),
     )
 
     return fig
@@ -131,6 +146,9 @@ def create_participation_chart(
     fig.update_traces(
         textposition="inside",
         textinfo="percent",
+        textfont=dict(
+            size=20,
+        ),
         hovertemplate=(
             "<b>%{label}</b><br>"
             "TIV: %{value:,.0f}<br>"
@@ -140,16 +158,30 @@ def create_participation_chart(
     )
 
     fig.update_layout(
+        title=dict(
+            font=dict(size=22),
+        ),
         legend_title_text="Países",
+        legend=dict(
+            font=dict(
+                size=16,
+            ),
+            title=dict(
+                font=dict(
+                    size=17,
+                ),
+            ),
+        ),
         margin=dict(
             l=20,
             r=20,
-            t=50,
+            t=60,
             b=20,
         ),
     )
 
     return fig
+
 
 def create_comparison_chart(
     comparison,
@@ -196,6 +228,20 @@ def create_comparison_chart(
             t=60,
             b=80,
         ),
+        title=dict(
+            font=dict(size=22),
+        ),
+        xaxis=dict(
+            title_font=dict(size=17),
+            tickfont=dict(size=15),
+        ),
+        yaxis=dict(
+            title_font=dict(size=17),
+            tickfont=dict(size=15),
+        ),
+        legend=dict(
+            font=dict(size=16),
+        ),
     )
 
     fig.update_traces(
@@ -207,6 +253,7 @@ def create_comparison_chart(
     )
 
     return fig
+
 
 def create_country_chart(
     country_yearly,
@@ -242,7 +289,21 @@ def create_country_chart(
             r=20,
             t=60,
             b=40,
-        )
+        ),
+        title=dict(
+            font=dict(size=22),
+        ),
+        xaxis=dict(
+            title_font=dict(size=17),
+            tickfont=dict(size=15),
+        ),
+        yaxis=dict(
+            title_font=dict(size=17),
+            tickfont=dict(size=15),
+        ),
+        legend=dict(
+            font=dict(size=16),
+        ),
     )
 
     fig.update_traces(
@@ -254,6 +315,7 @@ def create_country_chart(
     )
 
     return fig
+
 
 def create_country_pie(
     export_total,
@@ -286,6 +348,9 @@ def create_country_pie(
     fig.update_traces(
         textposition="inside",
         textinfo="percent",
+        textfont=dict(
+            size=22,
+        ),
         hovertemplate=(
             "<b>%{label}</b><br>"
             "TIV: %{value:,.0f}<br>"
@@ -296,6 +361,16 @@ def create_country_pie(
 
     fig.update_layout(
         legend_title_text="Tipo",
+        legend=dict(
+            font=dict(
+                size=17,
+            ),
+            title=dict(
+                font=dict(
+                    size=18,
+                ),
+            ),
+        ),
         margin=dict(
             l=10,
             r=10,
