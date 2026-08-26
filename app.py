@@ -8,7 +8,13 @@ from src.config import (
     COUNTRY_ISO3,
     EXPORT_COLOR,
     IMPORT_COLOR,
+    BACKGROUND_COLOR,
+    CARD_COLOR,
+    CARD_BORDER,
+    TEXT_PRIMARY,
+    TEXT_SECONDARY,
 )
+
 
 from src.data import (
     load_all_countries,
@@ -43,6 +49,33 @@ st.set_page_config(
     page_icon="🌎",
     layout="wide",
 )
+
+
+#CSS
+
+st.markdown(f"""
+<style>
+
+[data-testid="stMetric"] {{
+    background-color: {CARD_COLOR};
+    border-radius: 5px;
+    padding: 20px;
+}}
+
+[data-testid="stMetricLabel"] {{
+    color: {TEXT_SECONDARY};
+    font-size: 12px;
+    font-weight: light;
+}}
+
+[data-testid="stMetricValue"] {{
+    color: {TEXT_PRIMARY};
+    font-size: 28px;
+    font-weight: semibold;
+}}
+
+</style>
+""", unsafe_allow_html=True)
 
 
 st.title("SIPRI Arms Transfers")
@@ -221,12 +254,17 @@ top_country_export = (
     .iloc[0]["country"]
 )
 
+country_iso = COUNTRY_ISO3.get(
+    top_country_export.lower(),
+    "N/A",
+)
+
 
 col1, col2, col3, col4 = st.columns(4)
 
 
 with col1:
-    with st.container(border=True):
+    with st.container(border=False):
         st.metric(
         "Global Arms Transfer *TIV*",
        f"{total_world_transfer / 1_000_000:.2f}M",
@@ -234,7 +272,7 @@ with col1:
 
 with col2:
 
-    with st.container(border=True):
+    with st.container(border=False):
         st.metric(
             "Average Annual Transfer",
             f"{avg_annual_transfer / 1_000_000:.2f}M",
@@ -242,7 +280,7 @@ with col2:
 
 with col3:
 
-    with st.container(border=True):
+    with st.container(border=False):
         st.metric(
             "Active Countries",
             f"{total_active_countries} tracked",
@@ -250,10 +288,10 @@ with col3:
 
 with col4:
 
-    with st.container(border=True):
+    with st.container(border=False):
         st.metric(
             "Top Exporting Country",
-            f"{top_country_export}",
+            f"{country_iso}",
         )
 
 
