@@ -25,6 +25,7 @@ from src.analytics import (
     create_country_yearly,
     calculate_country_metrics,
     create_map_data,
+    count_unique_countries,
 )
 
 from src.charts import (
@@ -200,35 +201,60 @@ map_source = (
 )
 
 
-st.subheader("Totais mundiais")
+st.subheader("")
 
-
-total_world_export = calculate_world_total(
-    world_export_period
+total_world_transfer = calculate_world_total(
+    world_export_period,
 )
 
-total_world_import = calculate_world_total(
-    world_import_period
+total_active_countries = count_unique_countries(
+    map_source
+)
+
+avg_annual_transfer = (
+    total_world_transfer
+    / (end_year - start_year + 1)
+)
+
+top_country_export = (
+    create_ranking(exports_period)
+    .iloc[0]["country"]
 )
 
 
-col1, col2 = st.columns(2)
+col1, col2, col3, col4 = st.columns(4)
 
 
 with col1:
-
-    st.metric(
-        "Total World Export",
-        f"{total_world_export:,.0f}",
+    with st.container(border=True):
+        st.metric(
+        "Global Arms Transfer *TIV*",
+       f"{total_world_transfer / 1_000_000:.2f}M",
     )
-
 
 with col2:
 
-    st.metric(
-        "Total World Import",
-        f"{total_world_import:,.0f}",
-    )
+    with st.container(border=True):
+        st.metric(
+            "Average Annual Transfer",
+            f"{avg_annual_transfer / 1_000_000:.2f}M",
+        )
+
+with col3:
+
+    with st.container(border=True):
+        st.metric(
+            "Active Countries",
+            f"{total_active_countries} tracked",
+        )
+
+with col4:
+
+    with st.container(border=True):
+        st.metric(
+            "Top Exporting Country",
+            f"{top_country_export}",
+        )
 
 
 st.caption(

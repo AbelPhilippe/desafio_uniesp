@@ -201,3 +201,11 @@ def create_map_data(
     return map_df.dropna(
         subset=["iso_alpha"]
     )
+
+
+def count_unique_countries(df):
+
+    return (
+        df["country"]
+        .nunique()
+    )
