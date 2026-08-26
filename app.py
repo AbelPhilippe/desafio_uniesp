@@ -200,26 +200,6 @@ map_source = (
 )
 
 
-map_df = create_map_data(
-    map_source,
-    COUNTRY_ISO3,
-)
-
-
-fig_map = create_world_map(
-    map_df,
-    map_type,
-    start_year,
-    end_year,
-)
-
-
-st.plotly_chart(
-    fig_map,
-    use_container_width=True,
-)
-
-
 st.subheader("Totais mundiais")
 
 
@@ -255,6 +235,27 @@ st.caption(
     "Valores expressos em milhões de "
     "SIPRI Trend-Indicator Values (TIV)."
 )
+
+
+map_df = create_map_data(
+    map_source,
+    COUNTRY_ISO3,
+)
+
+
+fig_map = create_world_map(
+    map_df,
+    map_type,
+    start_year,
+    end_year,
+)
+
+
+st.plotly_chart(
+    fig_map,
+    use_container_width=True,
+)
+
 
 
 st.header("Totais mundiais por ano")
