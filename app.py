@@ -51,57 +51,137 @@ st.set_page_config(
 )
 
 
-#CSS
-
 st.markdown(f"""
 <style>
 
 [data-testid="stMetric"] {{
+    text-align: left;
     background-color: {CARD_COLOR};
     border-radius: 5px;
-    padding: 20px;
+    padding: 10px;
+    max-height: 100px;    
+    max-width: 300px;
+    ;
 }}
 
 [data-testid="stMetricLabel"] {{
-    color: {TEXT_SECONDARY};
-    font-size: 12px;
-    font-weight: light;
+    text-align: left;
+    color:{CARD_BORDER};
+    font-size: 10px;
+    font-weight: 800;
 }}
 
 [data-testid="stMetricValue"] {{
-    color: {TEXT_PRIMARY};
+    text-align: left;
+    color: {BACKGROUND_COLOR};
     font-size: 28px;
-    font-weight: semibold;
+    font-weight: 700;
+}}
+
+/* Exportações e Importações */
+div[role="radiogroup"] label p {{
+    color: {TEXT_SECONDARY} !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
 }}
 
 </style>
 """, unsafe_allow_html=True)
 
+#Título e subtítulo
 
-st.title("SIPRI Arms Transfers")
+with st.sidebar:
 
-st.caption(
-    "Análise de transferências internacionais de armas "
-    "com base no SIPRI Trend-Indicator Value (TIV)."
+    st.markdown("""
+    <h1 style='text-align: left;'>
+        <span style='
+            color:#FF4B4B;
+            font-size:42px;
+            font-weight:700;
+        '>
+            SIPRI
+        </span>
+        <br>
+        <span style='
+            font-size:24px;
+            font-weight:500;
+        '>
+            Transferências internacionais de armas
+        </span>
+    </h1>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <p style='
+        text-align:left;
+        font-size:10px;
+        color:{TEXT_SECONDARY};
+    '>
+        Análise global das transferências internacionais 
+        de armas baseada no SIPRI Trend Indicator Value (TIV).
+    </p>
+    """, unsafe_allow_html=True)
+
+
+#Adicionar espaçamento entre o título e os filtros
+
+with st.sidebar:
+
+    st.markdown("""
+    <hr style="margin-top:20px; margin-bottom:20px;">
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <h3 style="
+        text-align:left;
+        color:{TEXT_PRIMARY};
+        font-size:14px;
+        font-weight:600;
+        letter-spacing:1px;
+    ">
+        FILTROS
+    </h3>
+    """, unsafe_allow_html=True)
+
+#Filtros de período e ranking
+
+st.sidebar.markdown(
+    f"""
+    <div style="
+        font-size:12px;
+        font-weight:600;
+        color:{TEXT_SECONDARY};
+        margin-bottom:0px;
+    ">
+        Período:
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
-
-st.sidebar.header("Filtros")
-
-st.sidebar.subheader("Período")
-
 start_year, end_year = st.sidebar.slider(
-    "Selecione o período",
+    "",
     min_value=START_YEAR,
     max_value=END_YEAR,
     value=(START_YEAR, END_YEAR),
 )
 
-
-st.sidebar.subheader("Ranking")
+st.sidebar.markdown(
+    f"""
+    <div style="
+        font-size:12px;
+        font-weight:600;
+        color:{TEXT_SECONDARY};
+        margin-bottom:0px;
+    ">
+        Quantidade de países:
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 top_n = st.sidebar.slider(
-    "Quantidade de países",
+    "",
     min_value=5,
     max_value=30,
     value=10,
@@ -201,40 +281,37 @@ world_import_period = filter_period(
 )
 
 
-st.header(
-    f"Transferências mundiais — "
-    f"{start_year}–{end_year}"
-)
+with st.sidebar:
 
+    st.markdown(
+        f"""
+        <div style="
+            font-size:12px;
+            font-weight:600;
+            color:{TEXT_SECONDARY};
+            margin-bottom:-15px;
+        ">
+            Tipo de Mapa:
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-st.subheader(
-    "Mapa mundial de transferências"
-)
+    map_type = st.radio(
+        "",
+        [
+            "Exportações",
+            "Importações",
+        ],
+        horizontal=True,
+    )
 
-st.caption(
-    f"Volume acumulado de transferências entre "
-    f"{start_year} e {end_year}, segundo o SIPRI TIV."
-)
+    map_source = (
+        exports_period
+        if map_type == "Exportações"
+        else imports_period
+    )
 
-
-map_type = st.radio(
-    "Indicador do mapa",
-    [
-        "Exportações",
-        "Importações",
-    ],
-    horizontal=True,
-)
-
-
-map_source = (
-    exports_period
-    if map_type == "Exportações"
-    else imports_period
-)
-
-
-st.subheader("")
 
 total_world_transfer = calculate_world_total(
     world_export_period,
@@ -254,19 +331,28 @@ top_country_export = (
     .iloc[0]["country"]
 )
 
-country_iso = COUNTRY_ISO3.get(
+top_country_import = (
+    create_ranking(imports_period)
+    .iloc[0]["country"]
+)
+
+country_iso_export = COUNTRY_ISO3.get(
     top_country_export.lower(),
     "N/A",
 )
 
+country_iso_import = COUNTRY_ISO3.get(
+    top_country_import.lower(),
+    "N/A",
+)
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 
 with col1:
     with st.container(border=False):
         st.metric(
-        "Global Arms Transfer *TIV*",
+        "Total Global (TIV):",
        f"{total_world_transfer / 1_000_000:.2f}M",
     )
 
@@ -274,7 +360,7 @@ with col2:
 
     with st.container(border=False):
         st.metric(
-            "Average Annual Transfer",
+            "Média Anual (TIV):",
             f"{avg_annual_transfer / 1_000_000:.2f}M",
         )
 
@@ -282,23 +368,25 @@ with col3:
 
     with st.container(border=False):
         st.metric(
-            "Active Countries",
-            f"{total_active_countries} tracked",
+            "Países Ativos:",
+            f"{total_active_countries}",
         )
 
 with col4:
 
     with st.container(border=False):
         st.metric(
-            "Top Exporting Country",
-            f"{country_iso}",
+            "Maior exportador:",
+            f"{country_iso_export}",
         )
 
+with col5:
 
-st.caption(
-    "Valores expressos em milhões de "
-    "SIPRI Trend-Indicator Values (TIV)."
-)
+    with st.container(border=False):
+        st.metric(
+            "Maior importador:",
+            f"{country_iso_import}",
+        )        
 
 
 map_df = create_map_data(
