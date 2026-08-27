@@ -2,6 +2,11 @@ import plotly.express as px
 import numpy as np
 
 from src.config import (
+    CARD_BORDER,
+    CHART_TITLE_SIZE,
+    AXIS_TITLE_SIZE,
+    AXIS_LABEL_SIZE,
+    BACKGROUND_COLOR,
     COUNTRY_PALETTE,
     EXPORT_COLOR,
     IMPORT_COLOR,
@@ -9,7 +14,18 @@ from src.config import (
     MAP_IMPORT_SCALE,
     TEXT_PRIMARY,
     TEXT_SECONDARY,
+    MAP_LAND_COLOR,
 )
+
+def hex_to_rgba(hex_color, alpha):
+
+    hex_color = hex_color.lstrip("#")
+
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    return f"rgba({r},{g},{b},{alpha})"
 
 def create_world_map(
     map_df,
@@ -46,40 +62,52 @@ def create_world_map(
             "TIV": ":,.0f",
         },
         color_continuous_scale=color_scale,
-        projection="natural earth",
+        projection="robinson",
         labels={
             "TIV": "Milhões de SIPRI TIV",
         },
-        title=(
-            f"{map_type} — "
-            f"{start_year}–{end_year}"
-        ),
+        title=f"{map_type} — {start_year}–{end_year}",
+    )
+
+    fig.update_traces(
+        marker_line_width=0.05,
+        marker_line_color="rgba(255,255,255,0.04)",
+    )
+
+    fig.update_layout(
+        paper_bgcolor=BACKGROUND_COLOR,
+        plot_bgcolor=BACKGROUND_COLOR,
+    )
+
+    fig.update_traces(
+        marker_line_color="rgba(255,255,255,0.05)",
+        marker_line_width=0.2,
     )
 
     fig.update_geos(
         showframe=False,
-        showcoastlines=True,
-        coastlinecolor="rgba(100,100,100,0.5)",
+        showcoastlines=False,
         showland=True,
-        landcolor="rgba(220,220,220,0.25)",
+        landcolor=MAP_LAND_COLOR,
         showcountries=True,
-        countrycolor="rgba(100,100,100,0.35)",
+        countrycolor="rgba(255,255,255,0.05)",
+        countrywidth=0.2,
         bgcolor="rgba(0,0,0,0)",
     )
 
     fig.update_coloraxes(
-    colorbar_title=None,
-    colorbar=dict(
-        orientation="h",
-        x=0.5,
-        xanchor="center",
-        y=-0.15,
-        len=1.0,
-        thickness=12,
-        tickvals=tickvals,
-        ticktext=ticktext,
-        tickfont=dict(size=10),
-        )
+        colorbar_title=None,
+        colorbar=dict(
+            orientation="h",
+            x=0.5,
+            xanchor="center",
+            y=-0.15,
+            len=1.0,
+            thickness=12,
+            tickvals=tickvals,
+            ticktext=ticktext,
+            tickfont=dict(size=10),
+        ),
     )
 
     fig.add_annotation(
@@ -116,21 +144,34 @@ def create_world_yearly_chart(
     yearly_df,
     title,
     color,
+    height=400,
 ):
+    MAX_Y= 70_000
+    ticks = np.linspace(
+        0,
+        MAX_Y,
+        5
+    )
 
-    fig = px.bar(
+    fig = px.line(
         yearly_df,
         x="year",
         y="tiv",
         labels={
             "year": "Ano",
-            "tiv": "Milhões de SIPRI TIV",
+            "tiv": "M.TIV",
         },
         title=title,
     )
 
     fig.update_traces(
-        marker_color=color,
+        opacity=0.70,
+        line=dict(
+            color=color,
+            width=1,
+        ),
+        fill="tozeroy",
+        fillcolor=hex_to_rgba(color, 0.1),
         hovertemplate=(
             "<b>Ano:</b> %{x}<br>"
             "<b>TIV:</b> %{y:,.0f}"
@@ -139,22 +180,47 @@ def create_world_yearly_chart(
     )
 
     fig.update_layout(
-        margin=dict(
-            l=20,
-            r=20,
-            t=50,
-            b=20,
-        ),
+        height=height,
+
         title=dict(
-            font=dict(size=22),
+            font=dict(
+                size=CHART_TITLE_SIZE,
+                color=TEXT_PRIMARY,
+            ),
+            x=0,
+            xanchor="left",
         ),
+
         xaxis=dict(
-            title_font=dict(size=17),
-            tickfont=dict(size=15),
+            title_font=dict(
+                size=AXIS_TITLE_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+            tickfont=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
         ),
+
         yaxis=dict(
-            title_font=dict(size=17),
-            tickfont=dict(size=15),
+            title_font=dict(
+                size=AXIS_TITLE_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+            tickfont=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+            range=[0, MAX_Y],
+            tickvals=ticks,
+            ticktext=[
+                f"{x/1_000_000:.2f}M"
+                for x in ticks
+            ],
+            showgrid=True,
+            gridcolor=TEXT_SECONDARY,
+            gridwidth=0.2,
+            griddash="dot",
         ),
     )
 

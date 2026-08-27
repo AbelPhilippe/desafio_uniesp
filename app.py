@@ -1,6 +1,5 @@
 import streamlit as st
 
-
 from src.config import (
     EXPORTS_DIR,
     IMPORTS_DIR,
@@ -49,7 +48,7 @@ from src.charts import (
 
 st.set_page_config(
     page_title="SIPRI Arms Transfers",
-    page_icon="🌎",
+    page_icon="📉",
     layout="wide",
 )
 
@@ -146,14 +145,9 @@ with st.sidebar:
     </h3>
     """, unsafe_allow_html=True)
 
-#Filtros de período e ranking
-
-# ============================================================
-# PERÍODOS HISTÓRICOS
-# ============================================================
 
 if "war_period" not in st.session_state:
-    st.session_state.war_period = "Personalizado"
+    st.session_state.war_period = "Selecionar"
 
 
 if "period_slider" not in st.session_state:
@@ -164,15 +158,17 @@ if "period_slider" not in st.session_state:
 
 
 def select_war():
-    """
-    Quando uma guerra é selecionada,
-    o slider recebe automaticamente
-    o período correspondente.
-    """
 
     selected = st.session_state.war_period
 
-    if selected != "Personalizado":
+    if selected == "Selecionar":
+
+        st.session_state.period_slider = (
+            START_YEAR,
+            END_YEAR,
+        )
+
+    else:
 
         war_start, war_end = WAR_PERIODS[selected]
 
@@ -187,31 +183,6 @@ def manual_period_change():
     Se o usuário modificar manualmente o slider,
     remove a seleção da guerra.
     """
-
-    st.session_state.war_period = "Personalizado"
-
-
-st.sidebar.markdown(
-    f"""
-    <div style="
-        font-size:12px;
-        font-weight:600;
-        color:{TEXT_SECONDARY};
-        margin-bottom:0px;
-    ">
-        Período histórico:
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-war_period = st.sidebar.selectbox(
-    "",
-    options=list(WAR_PERIODS.keys()),
-    key="war_period",
-    on_change=select_war,
-)
 
 
 st.sidebar.markdown(
@@ -474,6 +445,13 @@ comparison = create_comparison(
     map_type,
 )
 
+war_period = st.select_slider(
+    "Conflito histórico",
+    options=list(WAR_PERIODS.keys()),
+    key="war_period",
+    on_change=select_war,
+)
+
 col1, col2 = st.columns(
     [3,2],
     gap="small")
@@ -551,14 +529,10 @@ with col2:
     )
 
 
-st.header("Totais mundiais por ano")
-
 col1, col2 = st.columns(2)
 
 
 with col1:
-
-    st.subheader("Total World Export")
 
     if world_export_period.empty:
 
@@ -589,8 +563,6 @@ with col1:
 
 
 with col2:
-
-    st.subheader("Total World Import")
 
     if world_import_period.empty:
 
