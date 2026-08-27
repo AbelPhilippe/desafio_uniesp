@@ -17,8 +17,7 @@ def clean_cell(value: str) -> str:
 
     value = str(value).strip()
 
-    # Essa linha aqui remove BOM
-    value = value.replace("\ufeff", "")
+    value = value.replace("\ufeff", "")  # Obs: Essa linha aqui remove BOM
 
     return value.strip()
 

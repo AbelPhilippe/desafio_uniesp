@@ -24,6 +24,93 @@ def calculate_world_total(df):
     )
 
 
+def calculate_country_growth(
+    df,
+    start_year,
+    end_year,
+):
+    """
+    Calcula o crescimento percentual do TIV
+    entre o primeiro e o último ano do período.
+    """
+
+    if df.empty:
+        return pd.DataFrame()
+
+    yearly = (
+        df
+        .groupby(
+            ["country", "year"],
+            as_index=False,
+        )["tiv"]
+        .sum()
+    )
+
+    start = (
+        yearly[
+            yearly["year"] == start_year
+        ]
+        [
+            [
+                "country",
+                "tiv",
+            ]
+        ]
+        .rename(
+            columns={
+                "tiv": "start_tiv",
+            }
+        )
+    )
+
+    end = (
+        yearly[
+            yearly["year"] == end_year
+        ]
+        [
+            [
+                "country",
+                "tiv",
+            ]
+        ]
+        .rename(
+            columns={
+                "tiv": "end_tiv",
+            }
+        )
+    )
+
+    result = pd.merge(
+        start,
+        end,
+        on="country",
+        how="inner",
+    )
+
+    # Evita divisão por zero
+    result = result[
+        result["start_tiv"] > 0
+    ].copy()
+
+    result["growth"] = (
+        (
+            result["end_tiv"]
+            /
+            result["start_tiv"]
+        )
+        - 1
+    ) * 100
+
+    return (
+        result
+        .sort_values(
+            "growth",
+            ascending=False,
+        )
+        .reset_index(drop=True)
+    )
+
+
 def calculate_world_yearly(df):
 
     return (

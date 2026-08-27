@@ -257,3 +257,24 @@ COUNTRY_ISO3 = {
     "zambia": "ZMB",
     "zimbabwe": "ZWE",
 }
+
+WAR_PERIODS = {
+    "Personalizado": None,
+
+    "Guerra da Coreia": (1950, 1953),
+    "Guerra do Vietnã": (1955, 1975),
+    "Guerra dos Seis Dias": (1967, 1967),
+    "Guerra de Yom Kippur": (1973, 1973),
+    "Guerra do Afeganistão (URSS)": (1979, 1989),
+    "Guerra Irã-Iraque": (1980, 1988),
+    "Guerra do Golfo": (1990, 1991),
+    "Guerra da Bósnia": (1992, 1995),
+    "Guerra do Kosovo": (1998, 1999),
+    "Guerra do Afeganistão": (2001, 2021),
+    "Guerra do Iraque": (2003, 2011),
+    "Guerra da Líbia": (2011, 2011),
+    "Guerra Civil Síria": (2011, 2025),
+    "Guerra do Iêmen": (2014, 2025),
+    "Guerra Rússia-Ucrânia": (2014, 2025),
+    "Guerra Israel-Hamas": (2023, 2025),
+}

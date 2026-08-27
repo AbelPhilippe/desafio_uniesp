@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 from src.config import (
     EXPORTS_DIR,
     IMPORTS_DIR,
@@ -13,6 +14,7 @@ from src.config import (
     CARD_BORDER,
     TEXT_PRIMARY,
     TEXT_SECONDARY,
+    WAR_PERIODS,
 )
 
 
@@ -32,6 +34,7 @@ from src.analytics import (
     calculate_country_metrics,
     create_map_data,
     count_unique_countries,
+    calculate_country_growth,
 )
 
 from src.charts import (
@@ -145,6 +148,49 @@ with st.sidebar:
 
 #Filtros de período e ranking
 
+# ============================================================
+# PERÍODOS HISTÓRICOS
+# ============================================================
+
+if "war_period" not in st.session_state:
+    st.session_state.war_period = "Personalizado"
+
+
+if "period_slider" not in st.session_state:
+    st.session_state.period_slider = (
+        START_YEAR,
+        END_YEAR,
+    )
+
+
+def select_war():
+    """
+    Quando uma guerra é selecionada,
+    o slider recebe automaticamente
+    o período correspondente.
+    """
+
+    selected = st.session_state.war_period
+
+    if selected != "Personalizado":
+
+        war_start, war_end = WAR_PERIODS[selected]
+
+        st.session_state.period_slider = (
+            max(START_YEAR, war_start),
+            min(END_YEAR, war_end),
+        )
+
+
+def manual_period_change():
+    """
+    Se o usuário modificar manualmente o slider,
+    remove a seleção da guerra.
+    """
+
+    st.session_state.war_period = "Personalizado"
+
+
 st.sidebar.markdown(
     f"""
     <div style="
@@ -153,17 +199,43 @@ st.sidebar.markdown(
         color:{TEXT_SECONDARY};
         margin-bottom:0px;
     ">
+        Período histórico:
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+war_period = st.sidebar.selectbox(
+    "",
+    options=list(WAR_PERIODS.keys()),
+    key="war_period",
+    on_change=select_war,
+)
+
+
+st.sidebar.markdown(
+    f"""
+    <div style="
+        font-size:12px;
+        font-weight:600;
+        color:{TEXT_SECONDARY};
+        margin-top:8px;
+        margin-bottom:0px;
+    ">
         Período:
     </div>
     """,
     unsafe_allow_html=True
 )
 
+
 start_year, end_year = st.sidebar.slider(
     "",
     min_value=START_YEAR,
     max_value=END_YEAR,
-    value=(START_YEAR, END_YEAR),
+    key="period_slider",
+    on_change=manual_period_change,
 )
 
 st.sidebar.markdown(
@@ -571,7 +643,7 @@ with col2:
 
 
 st.header(
-    "Exportações × Importações"
+    "Exportações X Importações"
 )
 
 
@@ -594,7 +666,7 @@ st.plotly_chart(
 
 
 st.subheader(
-    "Tabela — Exportações × Importações"
+    "Tabela — Exportações X Importações"
 )
 
 
@@ -830,6 +902,119 @@ with tab2:
     )
 
 st.divider()
+
+
+st.divider()
+
+st.header(" Insights")
+
+st.markdown(
+    f"""
+    Crescimento percentual das transferências entre
+    **{start_year}** e **{end_year}**.
+    """
+)
+
+
+st.subheader(
+    f"Crescimento das importações — {start_year} → {end_year}"
+)
+
+import_growth = calculate_country_growth(
+    imports_countries_df,
+    start_year,
+    end_year,
+)
+
+if import_growth.empty:
+
+    st.info(
+        "Não há dados suficientes para calcular "
+        "o crescimento no período."
+    )
+
+else:
+
+    import_growth_display = (
+        import_growth[
+            [
+                "country",
+                "growth",
+            ]
+        ]
+        .rename(
+            columns={
+                "country": "País",
+                "growth": "Crescimento (%)",
+            }
+        )
+    )
+
+    import_growth_display[
+        "Crescimento (%)"
+    ] = (
+        import_growth_display[
+            "Crescimento (%)"
+        ]
+        .round(2)
+    )
+
+    st.dataframe(
+        import_growth_display,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+
+st.subheader(
+    f"Crescimento das exportações — {start_year} → {end_year}"
+)
+
+export_growth = calculate_country_growth(
+    exports_countries_df,
+    start_year,
+    end_year,
+)
+
+if export_growth.empty:
+
+    st.info(
+        "Não há dados suficientes para calcular "
+        "o crescimento no período."
+    )
+
+else:
+
+    export_growth_display = (
+        export_growth[
+            [
+                "country",
+                "growth",
+            ]
+        ]
+        .rename(
+            columns={
+                "country": "País",
+                "growth": "Crescimento (%)",
+            }
+        )
+    )
+
+    export_growth_display[
+        "Crescimento (%)"
+    ] = (
+        export_growth_display[
+            "Crescimento (%)"
+        ]
+        .round(2)
+    )
+
+    st.dataframe(
+        export_growth_display,
+        use_container_width=True,
+        hide_index=True,
+    )
+
 
 st.caption(
     "Fonte: SIPRI Arms Transfers Database. "
