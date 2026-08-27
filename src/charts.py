@@ -1,4 +1,5 @@
 import plotly.express as px
+import numpy as np
 
 from src.config import (
     COUNTRY_PALETTE,
@@ -6,8 +7,9 @@ from src.config import (
     IMPORT_COLOR,
     MAP_EXPORT_SCALE,
     MAP_IMPORT_SCALE,
+    TEXT_PRIMARY,
+    TEXT_SECONDARY,
 )
-
 
 def create_world_map(
     map_df,
@@ -15,6 +17,18 @@ def create_world_map(
     start_year,
     end_year,
 ):
+    max_tiv = map_df["TIV"].max()
+
+    tickvals = np.linspace(
+        0,
+        max_tiv,
+        6
+    )
+
+    ticktext = [
+        f"{v/1_000_000:.1f}M"
+        for v in tickvals
+    ]
 
     color_scale = (
         MAP_EXPORT_SCALE
@@ -54,19 +68,44 @@ def create_world_map(
     )
 
     fig.update_coloraxes(
-        colorbar_title="Milhões de TIV"
+    colorbar_title=None,
+    colorbar=dict(
+        orientation="h",
+        x=0.5,
+        xanchor="center",
+        y=-0.15,
+        len=1.0,
+        thickness=12,
+        tickvals=tickvals,
+        ticktext=ticktext,
+        tickfont=dict(size=10),
+        )
+    )
+
+    fig.add_annotation(
+    text="TIV",
+    x=0.03,
+    y=0.009,
+    xanchor="left",
+    xref="paper",
+    yref="paper",
+    showarrow=False,
+    font=dict(
+        size=11,
+        color=TEXT_PRIMARY,
+        )
     )
 
     fig.update_layout(
-        height=650,
+        height=500,
         margin=dict(
             l=0,
             r=0,
             t=60,
-            b=0,
+            b=20,
         ),
         title=dict(
-            font=dict(size=24),
+            font=dict(size=18),
         ),
     )
 

@@ -460,26 +460,95 @@ with col5:
             f"{country_iso_import}",
         )        
 
-
-map_df = create_map_data(
-    map_source,
-    COUNTRY_ISO3,
+export_ranking = create_ranking(
+    exports_period
 )
 
+import_ranking = create_ranking(
+    imports_period
+)
 
-fig_map = create_world_map(
-    map_df,
+comparison = create_comparison(
+    export_ranking,
+    import_ranking,
     map_type,
-    start_year,
-    end_year,
 )
 
+col1, col2 = st.columns(
+    [3,2],
+    gap="small")
 
-st.plotly_chart(
-    fig_map,
-    use_container_width=True,
-)
+with col1:
 
+    with st.container(border=False):
+        map_df = create_map_data(
+            map_source,
+            COUNTRY_ISO3,
+        )
+    with st.container(border=False):
+        fig_map = create_world_map(
+            map_df,
+            map_type,
+            start_year,
+            end_year,
+        )
+
+        st.plotly_chart(
+        fig_map,
+        use_container_width=True,
+        )
+
+with col2:
+    
+    with st.container(border=False):  
+        comparison_display = (
+            comparison[
+                [
+                    "country",
+                    "exports",
+                    "imports",
+                    "net",
+                ]
+            ]
+            .reset_index(drop=True)
+            .rename(
+                columns={
+                    "country": "País",
+                    "exports": "Exp.(M TIV)",
+                    "imports": "Imp.(M TIV)",
+                    "net": "Saldo",
+                }
+            )
+        )
+        comparison_display["Exp.(M TIV)"] = (
+            comparison_display["Exp.(M TIV)"] / 1_000_000
+        )
+
+        comparison_display["Imp.(M TIV)"] = (
+            comparison_display["Imp.(M TIV)"] / 1_000_000
+        )
+
+        comparison_display["Saldo"] = (
+            comparison_display["Saldo"] / 1_000_000
+        )
+    
+
+        comparison_display.insert(
+            0,
+            "#",
+            range(1, len(comparison_display) + 1),
+        )
+
+    st.dataframe(
+        comparison_display.style.format({
+            "Exp.(M TIV)": "{:,.2f}",
+            "Imp.(M TIV)": "{:,.2f}",
+            "Saldo": "{:,.2f}",
+        }),
+        use_container_width=True,
+        hide_index=True,
+        height=500,
+    )
 
 
 st.header("Totais mundiais por ano")
@@ -549,15 +618,6 @@ with col2:
             fig,
             use_container_width=True,
         )
-
-
-export_ranking = create_ranking(
-    exports_period
-)
-
-import_ranking = create_ranking(
-    imports_period
-)
 
 
 st.header("Ranking mundial")
@@ -642,17 +702,6 @@ with col2:
     )
 
 
-st.header(
-    "Exportações X Importações"
-)
-
-
-comparison = create_comparison(
-    export_ranking,
-    import_ranking,
-)
-
-
 fig_comparison = create_comparison_chart(
     comparison,
     top_n,
@@ -668,34 +717,6 @@ st.plotly_chart(
 st.subheader(
     "Tabela — Exportações X Importações"
 )
-
-
-comparison_display = (
-    comparison[
-        [
-            "country",
-            "exports",
-            "imports",
-            "net",
-        ]
-    ]
-    .rename(
-        columns={
-            "country": "País",
-            "exports": "Exportações",
-            "imports": "Importações",
-            "net": "Saldo",
-        }
-    )
-)
-
-
-st.dataframe(
-    comparison_display,
-    use_container_width=True,
-    hide_index=True,
-)
-
 
 st.divider()
 
