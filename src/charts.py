@@ -244,18 +244,25 @@ def create_comparison_chart(
         .head(top_n)
     )
 
+    data = data.rename(
+    columns={
+        "exports": "Exports",
+        "imports": "Imports",
+    }
+)
+
     fig = px.bar(
         data,
         y="country",
         x=[
-            "exports",
-            "imports",
+            "Exports",
+            "Imports",
         ],
         orientation="h",
         barmode="stack",
         color_discrete_map={
-            "exports": EXPORT_COLOR,
-            "imports": IMPORT_COLOR,
+            "Exports": EXPORT_COLOR,
+            "Imports": IMPORT_COLOR,
         },
         labels={
             "country": "País",
@@ -277,7 +284,7 @@ def create_comparison_chart(
 
     fig.update_layout(
         dragmode=False,
-        height=580,
+        height=350,
         margin=dict(
             l=20,
             r=20,
@@ -327,7 +334,7 @@ def create_comparison_chart(
         ),
         legend=dict(
             orientation="h",
-            y=0.99,
+            y=1.02,
             x=1,
             xanchor="right",
             yanchor="bottom",
@@ -370,9 +377,9 @@ def create_balance_chart(
 
     data["status"] = data["net"].apply(
         lambda x:
-        "Exportador Líquido"
+        "Exports"
         if x >= 0
-        else "Importador Líquido"
+        else "Imports"
     )
 
     fig = px.bar(
@@ -382,8 +389,8 @@ def create_balance_chart(
         orientation="h",
         color="status",
         color_discrete_map={
-            "Exportador Líquido": EXPORT_COLOR,
-            "Importador Líquido": IMPORT_COLOR,
+            "Exports": EXPORT_COLOR,
+            "Imports": IMPORT_COLOR,
         },
         labels={
             "country": "País",
@@ -436,7 +443,7 @@ def create_balance_chart(
         ),
 
         xaxis=dict(
-            title="Saldo Comercial (M.TIV)",
+            title="M.TIV",
 
             tickvals=ticks,
 

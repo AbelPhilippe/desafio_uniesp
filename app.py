@@ -555,7 +555,7 @@ with col2:
         )
 
 
-col1, col2 = st.columns([3,4])
+col1, col2 = st.columns(2)
 
 
 with col1:
@@ -566,7 +566,7 @@ with col1:
     )
 
     fig_trade.update_layout(
-        height=580,
+        height=350,
         margin=dict(
             l=20,
             r=20,
@@ -592,6 +592,17 @@ with col2:
         top_n=10,
     )
 
+    fig_balance.update_layout(
+        height=350,
+        margin=dict(
+            l=20,
+            r=20,
+            t=20,
+            b=20,
+        ),
+        legend_title=None,
+    )
+
     st.plotly_chart(
         fig_balance,
         use_container_width=True,
@@ -600,134 +611,136 @@ with col2:
         },
     )
 
-    with st.expander(
-        "Qual país dominou o comércio global?"
-    ):
-        st.markdown(
-            f"""
-            <div style="
-                font-size:14px;
-                line-height:2;
-                color:{TEXT_SECONDARY};
-            ">
-                Os <span style="
-                    color:{EXPORT_COLOR};
-                    font-weight:700;
-                ">
-                    Estados Unidos
-                </span>
-                lideraram o comércio internacional de armamentos no
-                período analisado, concentrando o maior volume
-                de transferências.
-            </div>
-            """,
-            unsafe_allow_html=True,
-    )
-        
-    with st.expander(
-    "Qual país apresentou o maior saldo exportador?"
-    ):
-        st.markdown(
-            f"""
-            <div style="
-                font-size:14px;
-                line-height:2;
-                color:{TEXT_SECONDARY};
-            ">
-                <span style="
-                    color:{EXPORT_COLOR};
-                    font-weight:700;
-                ">
-                    Estados Unidos
-                </span>
-                apresentaram o maior saldo positivo entre
-                exportações de armamentos
-                no período analisado.
-            </div>
-            """,
-            unsafe_allow_html=True,
-    )
-        
-    with st.expander(
-    "Qual país dependeu mais de importações?"
-    ):
-        st.markdown(
-            f"""
-            <div style="
-                font-size:14px;
-                line-height:2;
-                color:{TEXT_SECONDARY};
-            ">
-                <span style="
-                    color:{IMPORT_COLOR};
-                    font-weight:700;
-                ">
-                    Índia
-                </span>
-                apresentou o maior volume líquido de
-                importações entre os países analisados.
-            </div>
-            """,
-            unsafe_allow_html=True,
-    )
-        
-    comparison["total_trade"] = (
-        comparison["exports"]
-        + comparison["imports"]
-    )
+st.markdown("")
 
-    top5_share = (
-        comparison
-        .sort_values(
-            "total_trade",
-            ascending=False,
-        )
-        .head(5)["total_trade"]
-        .sum()
-        /
-        comparison["total_trade"]
-        .sum()
-    )
-
-    with st.expander(
-        "Onde o comércio global é concentrado?"
-    ):
-        st.markdown(
-            f"""
-            <div style="
-                font-size:14px;
-                line-height:2;
-                color:{TEXT_SECONDARY};
+with st.expander(
+    "Qual país dominou o comércio global?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            Os <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
             ">
-                Os cinco maiores participantes concentraram
-                aproximadamente
-                <span style="
-                    color:{CARD_COLOR};
-                    font-weight:700;
-                ">
-                    {top5_share:.0%}
-                </span>
-                de todo o comércio internacional de armamentos
-                entre <span style="
-                    color:{EXPORT_COLOR};
-                    font-weight:700;
-                ">
-                    {start_year}
-                </span>
-                e
-                <span style="
-                    color:{EXPORT_COLOR};
-                    font-weight:700;
-                ">
-                    {end_year}
-                </span>.
-                Esse nível de concentração indica que poucas
-                nações exercem forte influência sobre os fluxos
-                globais de armamentos.
-            </div>
-            """,
-            unsafe_allow_html=True,
+                Estados Unidos
+            </span>
+            lideraram o comércio internacional de armamentos no
+            período analisado, concentrando o maior volume
+            de transferências.
+        </div>
+        """,
+        unsafe_allow_html=True,
+)
+
+with st.expander(
+"Qual país apresentou o maior saldo exportador?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                Estados Unidos
+            </span>
+            apresentaram o maior saldo positivo entre
+            exportações de armamentos
+            no período analisado.
+        </div>
+        """,
+        unsafe_allow_html=True,
+)
+
+with st.expander(
+"Qual país dependeu mais de importações?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            <span style="
+                color:{IMPORT_COLOR};
+                font-weight:700;
+            ">
+                Índia
+            </span>
+            apresentou o maior volume líquido de
+            importações entre os países analisados.
+        </div>
+        """,
+        unsafe_allow_html=True,
+)
+
+comparison["total_trade"] = (
+    comparison["exports"]
+    + comparison["imports"]
+)
+
+top5_share = (
+    comparison
+    .sort_values(
+        "total_trade",
+        ascending=False,
     )
+    .head(5)["total_trade"]
+    .sum()
+    /
+    comparison["total_trade"]
+    .sum()
+)
+
+with st.expander(
+    "Onde o comércio global é concentrado?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            Os cinco maiores participantes concentraram
+            aproximadamente
+            <span style="
+                color:{CARD_COLOR};
+                font-weight:700;
+            ">
+                {top5_share:.0%}
+            </span>
+            de todo o comércio internacional de armamentos
+            entre <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                {start_year}
+            </span>
+            e
+            <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                {end_year}
+            </span>.
+            Esse nível de concentração indica que poucas
+            nações exercem forte influência sobre os fluxos
+            globais de armamentos.
+        </div>
+        """,
+        unsafe_allow_html=True,
+)
 
 
 st.divider()
