@@ -559,6 +559,10 @@ with col1:
         st.plotly_chart(
             fig,
             use_container_width=True,
+            config={
+            "displayModeBar": False,
+            "staticPlot": True,
+            },
         )
 
 
@@ -589,101 +593,54 @@ with col2:
         st.plotly_chart(
             fig,
             use_container_width=True,
+            config={
+            "displayModeBar": False,
+            },
         )
 
 
-st.header("Ranking mundial")
-
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([3,4])
 
 
 with col1:
 
-    st.subheader(
-        f"Top {top_n} exportadores"
-    )
-
-    data = (
-        export_ranking
-        .head(top_n)
-        .sort_values("tiv")
-        .set_index("country")["tiv"]
-    )
-
-    st.bar_chart(
-        data,
-        horizontal=True,
-        x_label="Milhões de SIPRI TIV",
-        y_label="País",
-        color=EXPORT_COLOR,
-    )
-
-
-with col2:
-
-    st.subheader(
-        f"Top {top_n} importadores"
-    )
-
-    data = (
-        import_ranking
-        .head(top_n)
-        .sort_values("tiv")
-        .set_index("country")["tiv"]
-    )
-
-    st.bar_chart(
-        data,
-        horizontal=True,
-        x_label="Milhões de SIPRI TIV",
-        y_label="País",
-        color=IMPORT_COLOR,
-    )
-
-
-st.header("Participação mundial")
-
-col1, col2 = st.columns(2)
-
-
-with col1:
-
-    fig = create_participation_chart(
-        export_ranking,
-        top_n,
-        "Participação dos exportadores",
+    fig_trade = create_comparison_chart(
+        comparison,
+        top_n=10,
     )
 
     st.plotly_chart(
-        fig,
+        fig_trade,
         use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "staticPlot": True,
+        },
     )
 
+    fig_trade.update_layout(
+        height=400,
+        margin=dict(
+            l=20,
+            r=20,
+            t=20,
+            b=20,
+        ),
+        legend_title=None,
+    )
 
 with col2:
 
-    fig = create_participation_chart(
-        import_ranking,
-        top_n,
-        "Participação dos importadores",
-    )
-
-    st.plotly_chart(
-        fig,
-        use_container_width=True,
-    )
-
-
-fig_comparison = create_comparison_chart(
-    comparison,
-    top_n,
-)
-
-
-st.plotly_chart(
-    fig_comparison,
-    use_container_width=True,
-)
+    with st.expander(
+        "Quem dominou o comércio global?"
+    ):
+        st.markdown(
+            """
+            Os **Estados Unidos** lideraram o comércio
+            internacional de armamentos no período analisado,
+            concentrando o maior volume de transferências.
+            """
+        )
 
 
 st.subheader(

@@ -180,6 +180,7 @@ def create_world_yearly_chart(
     )
 
     fig.update_layout(
+        dragmode=False,
         height=height,
 
         title=dict(
@@ -219,7 +220,7 @@ def create_world_yearly_chart(
             ],
             showgrid=True,
             gridcolor=TEXT_SECONDARY,
-            gridwidth=0.2,
+            gridwidth=0.1,
             griddash="dot",
         ),
     )
@@ -290,13 +291,20 @@ def create_participation_chart(
 
 def create_comparison_chart(
     comparison,
-    top_n,
+    top_n=10,
 ):
 
+    data = comparison.copy()
+
+    data["total_trade"] = (
+        data["exports"]
+        + data["imports"]
+    )
+
     data = (
-        comparison
+        data
         .sort_values(
-            "exports",
+            "total_trade",
             ascending=False,
         )
         .head(top_n)
@@ -304,12 +312,13 @@ def create_comparison_chart(
 
     fig = px.bar(
         data,
-        x="country",
-        y=[
+        y="country",
+        x=[
             "exports",
             "imports",
         ],
-        barmode="group",
+        orientation="h",
+        barmode="stack",
         color_discrete_map={
             "exports": EXPORT_COLOR,
             "imports": IMPORT_COLOR,
@@ -320,44 +329,102 @@ def create_comparison_chart(
             "variable": "Tipo",
         },
         title=(
-            f"Exportações × Importações — "
-            f"Top {top_n}"
+            f"Top {top_n} Países - Comércio Global"
         ),
     )
 
+    max_trade = (
+        data["total_trade"].max()
+    )
+
+    ticks = np.linspace(
+        0,
+        max_trade,
+        5,
+    )
+
+    MAX_X = 1_000_000
+
+    ticks = np.linspace(
+        0,
+        MAX_X,
+        5,
+    )
+
     fig.update_layout(
-        xaxis_tickangle=-45,
+        dragmode=False,
+        height=450,
         margin=dict(
             l=20,
             r=20,
             t=60,
-            b=80,
+            b=20,
         ),
         title=dict(
-            font=dict(size=22),
+            font=dict(
+                size=CHART_TITLE_SIZE,
+                color=TEXT_PRIMARY,
+            ),
+            x=0,
+            xanchor="left",
         ),
         xaxis=dict(
-            title_font=dict(size=17),
-            tickfont=dict(size=15),
-        ),
+            title="M.TIV",
+
+            title_font=dict(
+                size=AXIS_TITLE_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+
+            tickfont=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+
+            range=[0, MAX_X],
+            tickvals=ticks,
+            ticktext=[
+                f"{x/1_000_000:.2f}M"
+                for x in ticks
+            ],
+
+            showgrid=True,
+            gridcolor=TEXT_SECONDARY,
+            gridwidth=0.1,
+            griddash="dot",
+        ),       
         yaxis=dict(
-            title_font=dict(size=17),
-            tickfont=dict(size=15),
+            title=None,              
+            autorange="reversed",
+            tickfont=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
         ),
         legend=dict(
-            font=dict(size=16),
+            orientation="h",
+            y=0.99,
+            x=1,
+            xanchor="right",
+            yanchor="bottom",
+            title=None,
+            font=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
         ),
     )
 
     fig.update_traces(
         hovertemplate=(
-            "<b>%{x}</b><br>"
-            "TIV: %{y:,.0f}"
+            "<b>%{y}</b><br>"
+            "TIV: %{x:,.0f}"
             "<extra></extra>"
         )
     )
 
     return fig
+
 
 
 def create_country_chart(
