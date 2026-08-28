@@ -101,7 +101,6 @@ def prepare_datasets(exports_df, imports_df):
             WORLD_EXPORT_NAMES
         )
     ].copy()
-
     world_import_df = imports_df[
         imports_df["_country_normalized"].isin(
             WORLD_IMPORT_NAMES
@@ -136,32 +135,4 @@ def filter_period(df, start_year, end_year):
         (df["year"] <= end_year)
     ].copy()
 
-def get_country_data(
-    exports_df,
-    imports_df,
-    country,
-    start_year,
-    end_year,
-):
 
-    country_exports = exports_df[
-        exports_df["country"] == country
-    ].copy()
-
-    country_imports = imports_df[
-        imports_df["country"] == country
-    ].copy()
-
-    country_exports = filter_period(
-        country_exports,
-        start_year,
-        end_year,
-    )
-
-    country_imports = filter_period(
-        country_imports,
-        start_year,
-        end_year,
-    )
-
-    return country_exports, country_imports

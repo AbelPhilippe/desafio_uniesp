@@ -18,12 +18,7 @@ START_YEAR = 1950
 END_YEAR = 2025
 
 EXPORT_COLOR = "#FF4B4B"
-EXPORT_LIGHT = "#F1DDDD"
 IMPORT_COLOR = "#D4AF37"
-IMPORT_LIGHT = "#F7EDD0"
-POSITIVE_COLOR = "#16A34A"
-NEGATIVE_COLOR = "#DC2626"
-NEUTRAL_COLOR = "#64748B"
 BACKGROUND_COLOR = "#0B111E"
 CARD_COLOR = "#FF4B4B"
 CARD_BORDER = "#852D2D"
@@ -33,22 +28,6 @@ CHART_TITLE_SIZE = 18
 AXIS_TITLE_SIZE = 12
 AXIS_LABEL_SIZE = 10
 MAP_LAND_COLOR = "#0B111E"
-
-COUNTRY_PALETTE = [
-    "#2563EB",
-    "#F97316",
-    "#16A34A",
-    "#9333EA",
-    "#0891B2",
-    "#E11D48",
-    "#CA8A04",
-    "#4F46E5",
-    "#059669",
-    "#DB2777",
-    "#7C3AED",
-    "#EA580C",
-]
-
 
 MAP_IMPORT_SCALE = [
     [0.00, "#0B111E"],
@@ -68,14 +47,12 @@ MAP_EXPORT_SCALE = [
     [1.00, "#FF4B4B"],
 ]
 
-
 WORLD_EXPORT_NAMES = {
     "total world export",
     "total_world_export",
     "total world exports",
     "total_world_exports",
 }
-
 
 WORLD_IMPORT_NAMES = {
     "total world import",

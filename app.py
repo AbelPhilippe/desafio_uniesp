@@ -21,7 +21,6 @@ from src.data import (
     load_all_countries,
     prepare_datasets,
     filter_period,
-    get_country_data,
 )
 
 from src.analytics import (
@@ -29,21 +28,15 @@ from src.analytics import (
     calculate_world_total,
     calculate_world_yearly,
     create_comparison,
-    create_country_yearly,
-    calculate_country_metrics,
     create_map_data,
     count_unique_countries,
-    calculate_country_growth,
 )
 
 from src.charts import (
     create_balance_chart,
     create_world_map,
     create_world_yearly_chart,
-    create_participation_chart,
     create_comparison_chart,
-    create_country_chart,
-    create_country_pie,
 )
 
 
@@ -114,7 +107,7 @@ with st.sidebar:
     </h1>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <p style='
         text-align:left;
         font-size:10px;
@@ -134,7 +127,7 @@ with st.sidebar:
     <hr style="margin-top:20px; margin-bottom:20px;">
     """, unsafe_allow_html=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <h3 style="
         text-align:left;
         color:{TEXT_PRIMARY};
@@ -179,13 +172,6 @@ def select_war():
         )
 
 
-def manual_period_change():
-    """
-    Se o usuário modificar manualmente o slider,
-    remove a seleção da guerra.
-    """
-
-
 st.sidebar.markdown(
     f"""
     <div style="
@@ -207,7 +193,6 @@ start_year, end_year = st.sidebar.slider(
     min_value=START_YEAR,
     max_value=END_YEAR,
     key="period_slider",
-    on_change=manual_period_change,
 )
 
 
@@ -216,16 +201,6 @@ if not EXPORTS_DIR.exists():
     st.error(
         "Diretório de exportações não encontrado:\n\n"
         f"{EXPORTS_DIR}"
-    )
-
-    st.stop()
-
-
-if not IMPORTS_DIR.exists():
-
-    st.error(
-        "Diretório de importações não encontrado:\n\n"
-        f"{IMPORTS_DIR}"
     )
 
     st.stop()
@@ -425,7 +400,7 @@ comparison = create_comparison(
     map_type,
 )
 
-war_period = st.select_slider(
+st.select_slider(
     "Conflito histórico",
     options=list(WAR_PERIODS.keys()),
     key="war_period",
@@ -590,15 +565,6 @@ with col1:
         top_n=10,
     )
 
-    st.plotly_chart(
-        fig_trade,
-        use_container_width=True,
-        config={
-        "displayModeBar": False,
-        "staticPlot": True,
-        },
-    )
-
     fig_trade.update_layout(
         height=580,
         margin=dict(
@@ -608,6 +574,15 @@ with col1:
             b=20,
         ),
         legend_title=None,
+    )
+
+    st.plotly_chart(
+        fig_trade,
+        use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "staticPlot": True,
+        },
     )
 
 with col2:

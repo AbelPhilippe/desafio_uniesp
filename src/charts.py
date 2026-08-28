@@ -2,12 +2,10 @@ import plotly.express as px
 import numpy as np
 
 from src.config import (
-    CARD_BORDER,
     CHART_TITLE_SIZE,
     AXIS_TITLE_SIZE,
     AXIS_LABEL_SIZE,
     BACKGROUND_COLOR,
-    COUNTRY_PALETTE,
     EXPORT_COLOR,
     IMPORT_COLOR,
     MAP_EXPORT_SCALE,
@@ -138,8 +136,6 @@ def create_world_map(
     )
 
     return fig
-
-
 def create_world_yearly_chart(
     yearly_df,
     title,
@@ -227,68 +223,6 @@ def create_world_yearly_chart(
 
     return fig
 
-
-def create_participation_chart(
-    ranking,
-    top_n,
-    title,
-):
-
-    data = (
-        ranking
-        .head(top_n)
-        .copy()
-    )
-
-    fig = px.pie(
-        data,
-        names="country",
-        values="tiv",
-        hole=0.35,
-        color_discrete_sequence=COUNTRY_PALETTE,
-        title=title,
-    )
-
-    fig.update_traces(
-        textposition="inside",
-        textinfo="percent",
-        textfont=dict(
-            size=20,
-        ),
-        hovertemplate=(
-            "<b>%{label}</b><br>"
-            "TIV: %{value:,.0f}<br>"
-            "Participação: %{percent}"
-            "<extra></extra>"
-        ),
-    )
-
-    fig.update_layout(
-        title=dict(
-            font=dict(size=22),
-        ),
-        legend_title_text="Países",
-        legend=dict(
-            font=dict(
-                size=16,
-            ),
-            title=dict(
-                font=dict(
-                    size=17,
-                ),
-            ),
-        ),
-        margin=dict(
-            l=20,
-            r=20,
-            t=60,
-            b=20,
-        ),
-    )
-
-    return fig
-
-
 def create_comparison_chart(
     comparison,
     top_n=10,
@@ -331,16 +265,6 @@ def create_comparison_chart(
         title=(
             f"Top {top_n} Países - Comércio Global"
         ),
-    )
-
-    max_trade = (
-        data["total_trade"].max()
-    )
-
-    ticks = np.linspace(
-        0,
-        max_trade,
-        5,
     )
 
     MAX_X = 1_000_000
@@ -568,128 +492,3 @@ def create_balance_chart(
     return fig
 
 
-def create_country_chart(
-    country_yearly,
-    country,
-):
-
-    fig = px.bar(
-        country_yearly,
-        x="year",
-        y=[
-            "Exportações",
-            "Importações",
-        ],
-        barmode="group",
-        color_discrete_map={
-            "Exportações": EXPORT_COLOR,
-            "Importações": IMPORT_COLOR,
-        },
-        labels={
-            "year": "Ano",
-            "value": "Milhões de SIPRI TIV",
-            "variable": "Tipo",
-        },
-        title=(
-            f"{country} — "
-            "Exportações × Importações"
-        ),
-    )
-
-    fig.update_layout(
-        margin=dict(
-            l=20,
-            r=20,
-            t=60,
-            b=40,
-        ),
-        title=dict(
-            font=dict(size=22),
-        ),
-        xaxis=dict(
-            title_font=dict(size=17),
-            tickfont=dict(size=15),
-        ),
-        yaxis=dict(
-            title_font=dict(size=17),
-            tickfont=dict(size=15),
-        ),
-        legend=dict(
-            font=dict(size=16),
-        ),
-    )
-
-    fig.update_traces(
-        hovertemplate=(
-            "<b>Ano:</b> %{x}<br>"
-            "TIV: %{y:,.0f}"
-            "<extra></extra>"
-        )
-    )
-
-    return fig
-
-
-def create_country_pie(
-    export_total,
-    import_total,
-):
-
-    data = {
-        "Tipo": [
-            "Exportações",
-            "Importações",
-        ],
-        "TIV": [
-            export_total,
-            import_total,
-        ],
-    }
-
-    fig = px.pie(
-        data,
-        names="Tipo",
-        values="TIV",
-        hole=0.45,
-        color="Tipo",
-        color_discrete_map={
-            "Exportações": EXPORT_COLOR,
-            "Importações": IMPORT_COLOR,
-        },
-    )
-
-    fig.update_traces(
-        textposition="inside",
-        textinfo="percent",
-        textfont=dict(
-            size=22,
-        ),
-        hovertemplate=(
-            "<b>%{label}</b><br>"
-            "TIV: %{value:,.0f}<br>"
-            "Participação: %{percent}"
-            "<extra></extra>"
-        ),
-    )
-
-    fig.update_layout(
-        legend_title_text="Tipo",
-        legend=dict(
-            font=dict(
-                size=17,
-            ),
-            title=dict(
-                font=dict(
-                    size=18,
-                ),
-            ),
-        ),
-        margin=dict(
-            l=10,
-            r=10,
-            t=20,
-            b=20,
-        ),
-    )
-
-    return fig
