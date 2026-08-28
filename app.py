@@ -37,6 +37,7 @@ from src.analytics import (
 )
 
 from src.charts import (
+    create_balance_chart,
     create_world_map,
     create_world_yearly_chart,
     create_participation_chart,
@@ -207,27 +208,6 @@ start_year, end_year = st.sidebar.slider(
     max_value=END_YEAR,
     key="period_slider",
     on_change=manual_period_change,
-)
-
-st.sidebar.markdown(
-    f"""
-    <div style="
-        font-size:12px;
-        font-weight:600;
-        color:{TEXT_SECONDARY};
-        margin-bottom:0px;
-    ">
-        Quantidade de países:
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-top_n = st.sidebar.slider(
-    "",
-    min_value=5,
-    max_value=30,
-    value=10,
 )
 
 
@@ -595,6 +575,7 @@ with col2:
             use_container_width=True,
             config={
             "displayModeBar": False,
+            "staticPlot": True,            
             },
         )
 
@@ -619,7 +600,7 @@ with col1:
     )
 
     fig_trade.update_layout(
-        height=400,
+        height=580,
         margin=dict(
             l=20,
             r=20,
@@ -631,344 +612,147 @@ with col1:
 
 with col2:
 
-    with st.expander(
-        "Quem dominou o comércio global?"
-    ):
-        st.markdown(
-            """
-            Os **Estados Unidos** lideraram o comércio
-            internacional de armamentos no período analisado,
-            concentrando o maior volume de transferências.
-            """
-        )
-
-
-st.subheader(
-    "Tabela — Exportações X Importações"
-)
-
-st.divider()
-
-st.header("Análise individual")
-
-
-countries = sorted(
-    set(
-        exports_countries_df[
-            "country"
-        ].unique()
-    )
-    |
-    set(
-        imports_countries_df[
-            "country"
-        ].unique()
-    )
-)
-
-
-country = st.selectbox(
-    "Selecione um país",
-    countries,
-)
-
-
-country_exports, country_imports = get_country_data(
-    exports_countries_df,
-    imports_countries_df,
-    country,
-    start_year,
-    end_year,
-)
-
-
-metrics = calculate_country_metrics(
-    country_exports,
-    country_imports,
-)
-
-
-col1, col2, col3, col4 = st.columns(4)
-
-
-col1.metric(
-    "Exportações",
-    f"{metrics['export_total']:,.0f}",
-)
-
-col2.metric(
-    "Importações",
-    f"{metrics['import_total']:,.0f}",
-)
-
-col3.metric(
-    "Média exportada / ano",
-    f"{metrics['export_average']:,.0f}",
-)
-
-col4.metric(
-    "Média importada / ano",
-    f"{metrics['import_average']:,.0f}",
-)
-
-
-st.subheader(
-    f"Transferências de {country}"
-)
-
-
-country_yearly = create_country_yearly(
-    country_exports,
-    country_imports,
-)
-
-
-fig_country = create_country_chart(
-    country_yearly,
-    country,
-)
-
-
-st.plotly_chart(
-    fig_country,
-    use_container_width=True,
-)
-
-st.subheader(
-    f"Proporção e dados — {country}"
-)
-
-
-col1, col2 = st.columns(
-    [1, 1.5]
-)
-
-
-with col1:
-
-    fig = create_country_pie(
-        metrics["export_total"],
-        metrics["import_total"],
+    fig_balance = create_balance_chart(
+        comparison,
+        top_n=10,
     )
 
     st.plotly_chart(
-        fig,
+        fig_balance,
         use_container_width=True,
+        config={
+            "displayModeBar": False,
+        },
     )
 
-
-with col2:
-
-    st.markdown(
-        f"**Dados anuais de {country}**"
+    with st.expander(
+        "Qual país dominou o comércio global?"
+    ):
+        st.markdown(
+            f"""
+            <div style="
+                font-size:14px;
+                line-height:2;
+                color:{TEXT_SECONDARY};
+            ">
+                Os <span style="
+                    color:{EXPORT_COLOR};
+                    font-weight:700;
+                ">
+                    Estados Unidos
+                </span>
+                lideraram o comércio internacional de armamentos no
+                período analisado, concentrando o maior volume
+                de transferências.
+            </div>
+            """,
+            unsafe_allow_html=True,
+    )
+        
+    with st.expander(
+    "Qual país apresentou o maior saldo exportador?"
+    ):
+        st.markdown(
+            f"""
+            <div style="
+                font-size:14px;
+                line-height:2;
+                color:{TEXT_SECONDARY};
+            ">
+                <span style="
+                    color:{EXPORT_COLOR};
+                    font-weight:700;
+                ">
+                    Estados Unidos
+                </span>
+                apresentaram o maior saldo positivo entre
+                exportações de armamentos
+                no período analisado.
+            </div>
+            """,
+            unsafe_allow_html=True,
+    )
+        
+    with st.expander(
+    "Qual país dependeu mais de importações?"
+    ):
+        st.markdown(
+            f"""
+            <div style="
+                font-size:14px;
+                line-height:2;
+                color:{TEXT_SECONDARY};
+            ">
+                <span style="
+                    color:{IMPORT_COLOR};
+                    font-weight:700;
+                ">
+                    Índia
+                </span>
+                apresentou o maior volume líquido de
+                importações entre os países analisados.
+            </div>
+            """,
+            unsafe_allow_html=True,
+    )
+        
+    comparison["total_trade"] = (
+        comparison["exports"]
+        + comparison["imports"]
     )
 
-    country_yearly_display = (
-        country_yearly
-        .rename(
-            columns={
-                "year": "Ano",
-            }
+    top5_share = (
+        comparison
+        .sort_values(
+            "total_trade",
+            ascending=False,
         )
+        .head(5)["total_trade"]
+        .sum()
+        /
+        comparison["total_trade"]
+        .sum()
     )
 
-    st.dataframe(
-        country_yearly_display,
-        use_container_width=True,
-        hide_index=True,
-        height=430,
+    with st.expander(
+        "Onde o comércio global é concentrado?"
+    ):
+        st.markdown(
+            f"""
+            <div style="
+                font-size:14px;
+                line-height:2;
+                color:{TEXT_SECONDARY};
+            ">
+                Os cinco maiores participantes concentraram
+                aproximadamente
+                <span style="
+                    color:{CARD_COLOR};
+                    font-weight:700;
+                ">
+                    {top5_share:.0%}
+                </span>
+                de todo o comércio internacional de armamentos
+                entre <span style="
+                    color:{EXPORT_COLOR};
+                    font-weight:700;
+                ">
+                    {start_year}
+                </span>
+                e
+                <span style="
+                    color:{EXPORT_COLOR};
+                    font-weight:700;
+                ">
+                    {end_year}
+                </span>.
+                Esse nível de concentração indica que poucas
+                nações exercem forte influência sobre os fluxos
+                globais de armamentos.
+            </div>
+            """,
+            unsafe_allow_html=True,
     )
+
 
 st.divider()
-
-st.header("Dados dos rankings")
-
-
-tab1, tab2 = st.tabs(
-    [
-        "Exportadores",
-        "Importadores",
-    ]
-)
-
-
-with tab1:
-
-    export_display = (
-        export_ranking
-        .copy()
-    )
-
-    export_display.index = range(
-        1,
-        len(export_display) + 1,
-    )
-
-    export_display.index.name = "Posição"
-
-    export_display = (
-        export_display
-        .rename(
-            columns={
-                "country": "País",
-                "tiv": "TIV",
-            }
-        )
-    )
-
-    st.dataframe(
-        export_display,
-        use_container_width=True,
-    )
-
-
-with tab2:
-
-    import_display = (
-        import_ranking
-        .copy()
-    )
-
-    import_display.index = range(
-        1,
-        len(import_display) + 1,
-    )
-
-    import_display.index.name = "Posição"
-
-    import_display = (
-        import_display
-        .rename(
-            columns={
-                "country": "País",
-                "tiv": "TIV",
-            }
-        )
-    )
-
-    st.dataframe(
-        import_display,
-        use_container_width=True,
-    )
-
-st.divider()
-
-
-st.divider()
-
-st.header(" Insights")
-
-st.markdown(
-    f"""
-    Crescimento percentual das transferências entre
-    **{start_year}** e **{end_year}**.
-    """
-)
-
-
-st.subheader(
-    f"Crescimento das importações — {start_year} → {end_year}"
-)
-
-import_growth = calculate_country_growth(
-    imports_countries_df,
-    start_year,
-    end_year,
-)
-
-if import_growth.empty:
-
-    st.info(
-        "Não há dados suficientes para calcular "
-        "o crescimento no período."
-    )
-
-else:
-
-    import_growth_display = (
-        import_growth[
-            [
-                "country",
-                "growth",
-            ]
-        ]
-        .rename(
-            columns={
-                "country": "País",
-                "growth": "Crescimento (%)",
-            }
-        )
-    )
-
-    import_growth_display[
-        "Crescimento (%)"
-    ] = (
-        import_growth_display[
-            "Crescimento (%)"
-        ]
-        .round(2)
-    )
-
-    st.dataframe(
-        import_growth_display,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-
-st.subheader(
-    f"Crescimento das exportações — {start_year} → {end_year}"
-)
-
-export_growth = calculate_country_growth(
-    exports_countries_df,
-    start_year,
-    end_year,
-)
-
-if export_growth.empty:
-
-    st.info(
-        "Não há dados suficientes para calcular "
-        "o crescimento no período."
-    )
-
-else:
-
-    export_growth_display = (
-        export_growth[
-            [
-                "country",
-                "growth",
-            ]
-        ]
-        .rename(
-            columns={
-                "country": "País",
-                "growth": "Crescimento (%)",
-            }
-        )
-    )
-
-    export_growth_display[
-        "Crescimento (%)"
-    ] = (
-        export_growth_display[
-            "Crescimento (%)"
-        ]
-        .round(2)
-    )
-
-    st.dataframe(
-        export_growth_display,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-
-st.caption(
-    "Fonte: SIPRI Arms Transfers Database. "
-    "Os valores são expressos em Trend-Indicator "
-    "Values (TIV) e não representam preços ou "
-    "valores financeiros de mercado."
-)
