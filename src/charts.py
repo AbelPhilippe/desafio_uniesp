@@ -42,7 +42,7 @@ def create_world_map(
     )
 
     ticktext = [
-        f"{v/1_000_000:.1f}M"
+        f"{v/1_000_000:.2f}M"
         for v in tickvals
     ]
 

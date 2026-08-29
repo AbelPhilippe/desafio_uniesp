@@ -520,9 +520,9 @@ with col2:
 
     st.dataframe(
         comparison_display.style.format({
-            "Exp.(M TIV)": "{:,.2f}",
-            "Imp.(M TIV)": "{:,.2f}",
-            "Saldo": "{:,.2f}",
+            "Exp.(M TIV)": "{:,.3f}",
+            "Imp.(M TIV)": "{:,.3f}",
+            "Saldo": "{:,.3f}",
         }),
         use_container_width=True,
         hide_index=True,
@@ -596,6 +596,7 @@ with col2:
             use_container_width=True,
             config={
             "displayModeBar": False,
+            "staticPlot": True,
             },
         )
 
@@ -652,7 +653,8 @@ with col2:
         fig_balance,
         use_container_width=True,
         config={
-            "displayModeBar": False,
+        "displayModeBar": False,
+        "staticPlot": True,
         },
     )
 
