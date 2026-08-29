@@ -17,24 +17,22 @@ IMPORTS_DIR = (
 START_YEAR = 1950
 END_YEAR = 2025
 
-EXPORT_COLOR = "#2563EB"
-EXPORT_LIGHT = "#60A5FA"
-
-IMPORT_COLOR = "#F97316"
-IMPORT_LIGHT = "#FDBA74"
-
+EXPORT_COLOR = "#FF4B4B"
+EXPORT_LIGHT = "#F1DDDD"
+IMPORT_COLOR = "#D4AF37"
+IMPORT_LIGHT = "#F7EDD0"
 POSITIVE_COLOR = "#16A34A"
 NEGATIVE_COLOR = "#DC2626"
-
 NEUTRAL_COLOR = "#64748B"
-
-BACKGROUND_COLOR = "#F1DDDD"
+BACKGROUND_COLOR = "#0B111E"
 CARD_COLOR = "#FF4B4B"
 CARD_BORDER = "#852D2D"
-
 TEXT_PRIMARY = "#F8FAFC"
 TEXT_SECONDARY = "#7D7E80"
-
+CHART_TITLE_SIZE = 18
+AXIS_TITLE_SIZE = 12
+AXIS_LABEL_SIZE = 10
+MAP_LAND_COLOR = "#0B111E"
 
 COUNTRY_PALETTE = [
     "#2563EB",
@@ -52,23 +50,22 @@ COUNTRY_PALETTE = [
 ]
 
 
-MAP_EXPORT_SCALE = [
-    [0.00, "#EFF6FF"],
-    [0.20, "#BFDBFE"],
-    [0.40, "#60A5FA"],
-    [0.60, "#2563EB"],
-    [0.80, "#1D4ED8"],
-    [1.00, "#1E3A8A"],
+MAP_IMPORT_SCALE = [
+    [0.00, "#0B111E"],
+    [0.20, "#24201A"],
+    [0.40, "#4A3C22"],
+    [0.60, "#7B6230"],
+    [0.80, "#B9903A"],
+    [1.00, "#D4AF37"],
 ]
 
-
-MAP_IMPORT_SCALE = [
-    [0.00, "#FFF7ED"],
-    [0.20, "#FED7AA"],
-    [0.40, "#FDBA74"],
-    [0.60, "#F97316"],
-    [0.80, "#EA580C"],
-    [1.00, "#9A3412"],
+MAP_EXPORT_SCALE = [
+    [0.00, "#22283A"],
+    [0.20, "#3A3650"],
+    [0.40, "#62445A"],
+    [0.60, "#91525D"],
+    [0.80, "#C95A57"],
+    [1.00, "#FF4B4B"],
 ]
 
 
@@ -259,7 +256,7 @@ COUNTRY_ISO3 = {
 }
 
 WAR_PERIODS = {
-    "Personalizado": None,
+    "Selecionar": None,
 
     "Guerra da Coreia": (1950, 1953),
     "Guerra do Vietnã": (1955, 1975),

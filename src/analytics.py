@@ -127,6 +127,7 @@ def calculate_world_yearly(df):
 def create_comparison(
     export_ranking,
     import_ranking,
+    map_type,
 ):
 
     comparison = pd.merge(
@@ -165,8 +166,14 @@ def create_comparison(
         comparison["imports"]
     )
 
+    sort_column = (
+        "exports"
+        if map_type == "Exportações"
+        else "imports"
+    )
+
     return comparison.sort_values(
-        "exports",
+        sort_column,
         ascending=False,
     )
 

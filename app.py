@@ -1,6 +1,5 @@
 import streamlit as st
-
-
+####
 from src.config import (
     EXPORTS_DIR,
     IMPORTS_DIR,
@@ -44,12 +43,13 @@ from src.charts import (
     create_comparison_chart,
     create_country_chart,
     create_country_pie,
+    create_balance_chart,
 )
 
 
 st.set_page_config(
     page_title="SIPRI Arms Transfers",
-    page_icon="🌎",
+    page_icon="📉",
     layout="wide",
 )
 
@@ -146,14 +146,9 @@ with st.sidebar:
     </h3>
     """, unsafe_allow_html=True)
 
-#Filtros de período e ranking
-
-# ============================================================
-# PERÍODOS HISTÓRICOS
-# ============================================================
 
 if "war_period" not in st.session_state:
-    st.session_state.war_period = "Personalizado"
+    st.session_state.war_period = "Selecionar"
 
 
 if "period_slider" not in st.session_state:
@@ -164,15 +159,17 @@ if "period_slider" not in st.session_state:
 
 
 def select_war():
-    """
-    Quando uma guerra é selecionada,
-    o slider recebe automaticamente
-    o período correspondente.
-    """
 
     selected = st.session_state.war_period
 
-    if selected != "Personalizado":
+    if selected == "Selecionar":
+
+        st.session_state.period_slider = (
+            START_YEAR,
+            END_YEAR,
+        )
+
+    else:
 
         war_start, war_end = WAR_PERIODS[selected]
 
@@ -187,31 +184,6 @@ def manual_period_change():
     Se o usuário modificar manualmente o slider,
     remove a seleção da guerra.
     """
-
-    st.session_state.war_period = "Personalizado"
-
-
-st.sidebar.markdown(
-    f"""
-    <div style="
-        font-size:12px;
-        font-weight:600;
-        color:{TEXT_SECONDARY};
-        margin-bottom:0px;
-    ">
-        Período histórico:
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-war_period = st.sidebar.selectbox(
-    "",
-    options=list(WAR_PERIODS.keys()),
-    key="war_period",
-    on_change=select_war,
-)
 
 
 st.sidebar.markdown(
@@ -425,7 +397,7 @@ with col1:
     with st.container(border=False):
         st.metric(
         "Total Global (TIV):",
-       f"{total_world_transfer / 1_000_000:.2f}M",
+       f"{total_world_transfer / 1_000:.2f}K",
     )
 
 with col2:
@@ -433,7 +405,7 @@ with col2:
     with st.container(border=False):
         st.metric(
             "Média Anual (TIV):",
-            f"{avg_annual_transfer / 1_000_000:.2f}M",
+            f"{avg_annual_transfer / 1_000:.2f}K",
         )
 
 with col3:
@@ -460,36 +432,108 @@ with col5:
             f"{country_iso_import}",
         )        
 
-
-map_df = create_map_data(
-    map_source,
-    COUNTRY_ISO3,
+export_ranking = create_ranking(
+    exports_period
 )
 
+import_ranking = create_ranking(
+    imports_period
+)
 
-fig_map = create_world_map(
-    map_df,
+comparison = create_comparison(
+    export_ranking,
+    import_ranking,
     map_type,
-    start_year,
-    end_year,
 )
 
-
-st.plotly_chart(
-    fig_map,
-    use_container_width=True,
+war_period = st.select_slider(
+    "Conflito histórico",
+    options=list(WAR_PERIODS.keys()),
+    key="war_period",
+    on_change=select_war,
 )
 
+col1, col2 = st.columns(
+    [3,2],
+    gap="small")
 
+with col1:
 
-st.header("Totais mundiais por ano")
+    with st.container(border=False):
+        map_df = create_map_data(
+            map_source,
+            COUNTRY_ISO3,
+        )
+    with st.container(border=False):
+        fig_map = create_world_map(
+            map_df,
+            map_type,
+            start_year,
+            end_year,
+        )
+
+        st.plotly_chart(
+        fig_map,
+        use_container_width=True,
+        )
+
+with col2:
+    
+    with st.container(border=False):  
+        comparison_display = (
+            comparison[
+                [
+                    "country",
+                    "exports",
+                    "imports",
+                    "net",
+                ]
+            ]
+            .reset_index(drop=True)
+            .rename(
+                columns={
+                    "country": "País",
+                    "exports": "Exp.(K TIV)",
+                    "imports": "Imp.(K TIV)",
+                    "net": "Saldo",
+                }
+            )
+        )
+        comparison_display["Exp.(K TIV)"] = (
+            comparison_display["Exp.(K TIV)"] / 1_000
+        )
+
+        comparison_display["Imp.(K TIV)"] = (
+            comparison_display["Imp.(K TIV)"] / 1_000
+        )
+
+        comparison_display["Saldo"] = (
+            comparison_display["Saldo"] / 1_000
+        )
+    
+
+        comparison_display.insert(
+            0,
+            "#",
+            range(1, len(comparison_display) + 1),
+        )
+
+    st.dataframe(
+        comparison_display.style.format({
+            "Exp.(K TIV)": "{:,.0f}",
+            "Imp.(K TIV)": "{:,.0f}",
+            "Saldo": "{:,.0f}",
+        }),
+        use_container_width=True,
+        hide_index=True,
+        height=500,
+    )
+
 
 col1, col2 = st.columns(2)
 
 
 with col1:
-
-    st.subheader("Total World Export")
 
     if world_export_period.empty:
 
@@ -516,12 +560,14 @@ with col1:
         st.plotly_chart(
             fig,
             use_container_width=True,
+            config={
+            "displayModeBar": False,
+            "staticPlot": True,
+            },
         )
 
 
 with col2:
-
-    st.subheader("Total World Import")
 
     if world_import_period.empty:
 
@@ -548,154 +594,205 @@ with col2:
         st.plotly_chart(
             fig,
             use_container_width=True,
+            config={
+            "displayModeBar": False,
+            "staticPlot": True,
+            },
         )
 
 
-export_ranking = create_ranking(
-    exports_period
-)
-
-import_ranking = create_ranking(
-    imports_period
-)
-
-
-st.header("Ranking mundial")
-
 col1, col2 = st.columns(2)
 
 
 with col1:
 
-    st.subheader(
-        f"Top {top_n} exportadores"
+    fig_trade = create_comparison_chart(
+        comparison,
+        top_n=10,
     )
 
-    data = (
-        export_ranking
-        .head(top_n)
-        .sort_values("tiv")
-        .set_index("country")["tiv"]
-    )
-
-    st.bar_chart(
-        data,
-        horizontal=True,
-        x_label="Milhões de SIPRI TIV",
-        y_label="País",
-        color=EXPORT_COLOR,
-    )
-
-
-with col2:
-
-    st.subheader(
-        f"Top {top_n} importadores"
-    )
-
-    data = (
-        import_ranking
-        .head(top_n)
-        .sort_values("tiv")
-        .set_index("country")["tiv"]
-    )
-
-    st.bar_chart(
-        data,
-        horizontal=True,
-        x_label="Milhões de SIPRI TIV",
-        y_label="País",
-        color=IMPORT_COLOR,
-    )
-
-
-st.header("Participação mundial")
-
-col1, col2 = st.columns(2)
-
-
-with col1:
-
-    fig = create_participation_chart(
-        export_ranking,
-        top_n,
-        "Participação dos exportadores",
+    fig_trade.update_layout(
+        height=350,
+        margin=dict(
+            l=20,
+            r=20,
+            t=20,
+            b=20,
+        ),
+        legend_title=None,
     )
 
     st.plotly_chart(
-        fig,
+        fig_trade,
         use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "staticPlot": True,
+        },
     )
-
 
 with col2:
 
-    fig = create_participation_chart(
-        import_ranking,
-        top_n,
-        "Participação dos importadores",
+    fig_balance = create_balance_chart(
+        comparison,
+        top_n=10,
+    )
+
+    fig_balance.update_layout(
+        height=350,
+        margin=dict(
+            l=20,
+            r=20,
+            t=20,
+            b=20,
+        ),
+        legend_title=None,
     )
 
     st.plotly_chart(
-        fig,
+        fig_balance,
         use_container_width=True,
+        config={
+        "displayModeBar": False,
+        "staticPlot": True,
+        },
     )
 
+st.markdown("")
 
-st.header(
-    "Exportações X Importações"
+with st.expander(
+    "Qual país dominou o comércio global?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            Os <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                Estados Unidos
+            </span>
+            lideraram o comércio internacional de armamentos no
+            período analisado, concentrando o maior volume
+            de transferências.
+        </div>
+        """,
+        unsafe_allow_html=True,
 )
 
-
-comparison = create_comparison(
-    export_ranking,
-    import_ranking,
+with st.expander(
+"Qual país apresentou o maior saldo exportador?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                Estados Unidos
+            </span>
+            apresentaram o maior saldo positivo entre
+            exportações de armamentos
+            no período analisado.
+        </div>
+        """,
+        unsafe_allow_html=True,
 )
 
-
-fig_comparison = create_comparison_chart(
-    comparison,
-    top_n,
+with st.expander(
+"Qual país dependeu mais de importações?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            <span style="
+                color:{IMPORT_COLOR};
+                font-weight:700;
+            ">
+                Índia
+            </span>
+            apresentou o maior volume líquido de
+            importações entre os países analisados.
+        </div>
+        """,
+        unsafe_allow_html=True,
 )
 
+comparison["total_trade"] = (
+    comparison["exports"]
+    + comparison["imports"]
+)
 
-st.plotly_chart(
-    fig_comparison,
-    use_container_width=True,
+top5_share = (
+    comparison
+    .sort_values(
+        "total_trade",
+        ascending=False,
+    )
+    .head(5)["total_trade"]
+    .sum()
+    /
+    comparison["total_trade"]
+    .sum()
+)
+
+with st.expander(
+    "Onde o comércio global é concentrado?"
+):
+    st.markdown(
+        f"""
+        <div style="
+            font-size:14px;
+            line-height:2;
+            color:{TEXT_SECONDARY};
+        ">
+            Os cinco maiores participantes concentraram
+            aproximadamente
+            <span style="
+                color:{CARD_COLOR};
+                font-weight:700;
+            ">
+                {top5_share:.0%}
+            </span>
+            de todo o comércio internacional de armamentos
+            entre <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                {start_year}
+            </span>
+            e
+            <span style="
+                color:{EXPORT_COLOR};
+                font-weight:700;
+            ">
+                {end_year}
+            </span>.
+            Esse nível de concentração indica que poucas
+            nações exercem forte influência sobre os fluxos
+            globais de armamentos.
+        </div>
+        """,
+        unsafe_allow_html=True,
 )
 
 
 st.subheader(
     "Tabela — Exportações X Importações"
 )
-
-
-comparison_display = (
-    comparison[
-        [
-            "country",
-            "exports",
-            "imports",
-            "net",
-        ]
-    ]
-    .rename(
-        columns={
-            "country": "País",
-            "exports": "Exportações",
-            "imports": "Importações",
-            "net": "Saldo",
-        }
-    )
-)
-
-
-st.dataframe(
-    comparison_display,
-    use_container_width=True,
-    hide_index=True,
-)
-
 
 st.divider()
 
@@ -976,6 +1073,7 @@ export_growth = calculate_country_growth(
     end_year,
 )
 
+# Verificação extra
 if export_growth.empty:
 
     st.info(
