@@ -552,3 +552,143 @@ def create_country_pie(
     )
 
     return fig
+
+def create_balance_chart(
+    comparison,
+    top_n=10,
+):
+
+    data = comparison.copy()
+
+    data = (
+        data
+        .sort_values(
+            "net",
+            key=abs,
+            ascending=False,
+        )
+        .head(top_n)
+    )
+
+    data["status"] = data["net"].apply(
+        lambda x:
+        "Exports"
+        if x >= 0
+        else "Imports"
+    )
+
+    fig = px.bar(
+        data,
+        x="net",
+        y="country",
+        orientation="h",
+        color="status",
+        color_discrete_map={
+            "Exports": EXPORT_COLOR,
+            "Imports": IMPORT_COLOR,
+        },
+        labels={
+            "country": "País",
+            "net": "M.TIV",
+            "status": "Status",
+        },
+        title="Saldo Comercial de Armamentos",
+    )
+
+    max_balance = abs(data["net"]).max()
+
+    ticks = np.linspace(
+        -max_balance,
+        max_balance,
+        5,
+    )
+
+    fig.update_layout(
+        height=350,
+
+        margin=dict(
+            l=20,
+            r=20,
+            t=50,
+            b=20,
+        ),
+
+        title=dict(
+            font=dict(
+                size=CHART_TITLE_SIZE,
+                color=TEXT_PRIMARY,
+            ),
+            x=0,
+            xanchor="left",
+        ),
+
+        bargap=0.20,
+
+        legend=dict(
+            orientation="h",
+            y=1.02,
+            x=1,
+            xanchor="right",
+            yanchor="bottom",
+            title=None,
+            font=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+        ),
+
+        xaxis=dict(
+            title="M.TIV",
+
+            tickvals=ticks,
+
+            ticktext=[
+                f"{x/1_000_000:.2f}M"
+                for x in ticks
+            ],
+
+            title_font=dict(
+                size=AXIS_TITLE_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+
+            tickfont=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+
+            zeroline=True,
+            zerolinewidth=1,
+            zerolinecolor=TEXT_SECONDARY,
+
+            showgrid=True,
+            gridcolor=TEXT_SECONDARY,
+            gridwidth=0.2,
+            griddash="dot",
+        ),
+
+        yaxis=dict(
+            title=None,
+
+            tickfont=dict(
+                size=AXIS_LABEL_SIZE,
+                color=TEXT_SECONDARY,
+            ),
+
+            autorange="reversed",
+        ),
+    )
+
+    fig.update_traces(
+        opacity=0.85,
+
+        textposition="auto",
+
+        hovertemplate=(
+            "<b>%{y}</b><br>"
+            "Saldo: %{x:,.0f}"
+            "<extra></extra>"
+        ),
+    )
+
+    return fig

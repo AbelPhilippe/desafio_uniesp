@@ -43,6 +43,7 @@ from src.charts import (
     create_comparison_chart,
     create_country_chart,
     create_country_pie,
+    create_balance_chart,
 )
 
 
