@@ -1,11 +1,4 @@
 numpy
-streamlit
 pandas
 plotly
-matplotlib
-datetime
-requests
-python-dotenv
-openpyxl
-xlrd
-pyarrow
+streamlit
