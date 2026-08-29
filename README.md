@@ -246,6 +246,13 @@ Interface oficial para consulta dos dados:
 
 https://armstransfers.sipri.org/
 
+Caso baixe novos arquivos.csv e queira ler os mesmos, execute o código abaixo para preparar para o consumo.
+Obs: o código deve ser utilizado na raíz do projeto.
+
+```bash
+python3 read_data.py
+```
+
 ## TIV — Trend-Indicator Value
 
 Uma das principais métricas utilizadas no projeto é o **Trend-Indicator Value (TIV)**.
