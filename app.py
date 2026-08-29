@@ -397,7 +397,7 @@ with col1:
     with st.container(border=False):
         st.metric(
         "Total Global (TIV):",
-       f"{total_world_transfer / 1_000_000:.2f}M",
+       f"{total_world_transfer / 1_000:.2f}K",
     )
 
 with col2:
@@ -405,7 +405,7 @@ with col2:
     with st.container(border=False):
         st.metric(
             "Média Anual (TIV):",
-            f"{avg_annual_transfer / 1_000_000:.2f}M",
+            f"{avg_annual_transfer / 1_000:.2f}K",
         )
 
 with col3:
@@ -493,22 +493,22 @@ with col2:
             .rename(
                 columns={
                     "country": "País",
-                    "exports": "Exp.(M TIV)",
-                    "imports": "Imp.(M TIV)",
+                    "exports": "Exp.(K TIV)",
+                    "imports": "Imp.(K TIV)",
                     "net": "Saldo",
                 }
             )
         )
-        comparison_display["Exp.(M TIV)"] = (
-            comparison_display["Exp.(M TIV)"] / 1_000_000
+        comparison_display["Exp.(K TIV)"] = (
+            comparison_display["Exp.(K TIV)"] / 1_000
         )
 
-        comparison_display["Imp.(M TIV)"] = (
-            comparison_display["Imp.(M TIV)"] / 1_000_000
+        comparison_display["Imp.(K TIV)"] = (
+            comparison_display["Imp.(K TIV)"] / 1_000
         )
 
         comparison_display["Saldo"] = (
-            comparison_display["Saldo"] / 1_000_000
+            comparison_display["Saldo"] / 1_000
         )
     
 
@@ -520,9 +520,9 @@ with col2:
 
     st.dataframe(
         comparison_display.style.format({
-            "Exp.(M TIV)": "{:,.3f}",
-            "Imp.(M TIV)": "{:,.3f}",
-            "Saldo": "{:,.3f}",
+            "Exp.(K TIV)": "{:,.0f}",
+            "Imp.(K TIV)": "{:,.0f}",
+            "Saldo": "{:,.0f}",
         }),
         use_container_width=True,
         hide_index=True,

@@ -42,7 +42,7 @@ def create_world_map(
     )
 
     ticktext = [
-        f"{v/1_000_000:.2f}M"
+        f"{v/1_000:.0f}K"
         for v in tickvals
     ]
 
@@ -146,7 +146,7 @@ def create_world_yearly_chart(
     color,
     height=400,
 ):
-    MAX_Y= 70_000
+    MAX_Y= 50_000
     ticks = np.linspace(
         0,
         MAX_Y,
@@ -159,7 +159,7 @@ def create_world_yearly_chart(
         y="tiv",
         labels={
             "year": "Ano",
-            "tiv": "M.TIV",
+            "tiv": "K.TIV",
         },
         title=title,
     )
@@ -215,8 +215,8 @@ def create_world_yearly_chart(
             range=[0, MAX_Y],
             tickvals=ticks,
             ticktext=[
-                f"{x/1_000_000:.2f}M"
-                for x in ticks
+                f"{x/1_000:.0f}K"
+                for x in ticks  
             ],
             showgrid=True,
             gridcolor=TEXT_SECONDARY,
@@ -325,7 +325,7 @@ def create_comparison_chart(
         },
         labels={
             "country": "País",
-            "value": "Milhões de SIPRI TIV",
+            "value": "Milhares de SIPRI TIV",
             "variable": "Tipo",
         },
         title=(
@@ -340,14 +340,6 @@ def create_comparison_chart(
     ticks = np.linspace(
         0,
         max_trade,
-        5,
-    )
-
-    MAX_X = 1_000_000
-
-    ticks = np.linspace(
-        0,
-        MAX_X,
         5,
     )
 
@@ -369,7 +361,7 @@ def create_comparison_chart(
             xanchor="left",
         ),
         xaxis=dict(
-            title="M.TIV",
+            title="K.TIV",
 
             title_font=dict(
                 size=AXIS_TITLE_SIZE,
@@ -381,10 +373,9 @@ def create_comparison_chart(
                 color=TEXT_SECONDARY,
             ),
 
-            range=[0, MAX_X],
             tickvals=ticks,
             ticktext=[
-                f"{x/1_000_000:.2f}M"
+                f"{x/1_000:.0f}K"
                 for x in ticks
             ],
 
@@ -446,7 +437,7 @@ def create_country_chart(
         },
         labels={
             "year": "Ano",
-            "value": "Milhões de SIPRI TIV",
+            "value": "Milhares de SIPRI TIV",
             "variable": "Tipo",
         },
         title=(
@@ -589,7 +580,7 @@ def create_balance_chart(
         },
         labels={
             "country": "País",
-            "net": "M.TIV",
+            "net": "K.TIV",
             "status": "Status",
         },
         title="Saldo Comercial de Armamentos",
@@ -638,12 +629,11 @@ def create_balance_chart(
         ),
 
         xaxis=dict(
-            title="M.TIV",
+            title="K.TIV",
 
             tickvals=ticks,
-
             ticktext=[
-                f"{x/1_000_000:.2f}M"
+                f"{x/1_000:.0f}K"
                 for x in ticks
             ],
 
