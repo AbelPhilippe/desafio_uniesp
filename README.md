@@ -1,5 +1,8 @@
 # UNIESP MBA — SIPRI Arms Transfers Intelligence
 
+<img width="1874" height="856" alt="image" src="https://github.com/user-attachments/assets/492768d3-24a5-4049-8c69-ab928c70217f" />
+
+
 Dashboard interativo desenvolvido como parte do desafio do **MBA em Engenharia e Ciência de Dados da UNIESP**, utilizando dados do **SIPRI Arms Transfers Database** para analisar a dinâmica das transferências internacionais de armamentos.
 
 O projeto transforma dados históricos de transferências de armamentos em informações visuais e comparáveis sobre **países exportadores, países importadores, evolução temporal, volume de transferências e comportamento individual por país**.
