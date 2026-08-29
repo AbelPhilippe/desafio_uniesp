@@ -1073,6 +1073,7 @@ export_growth = calculate_country_growth(
     end_year,
 )
 
+# Verificação extra
 if export_growth.empty:
 
     st.info(
